@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
@@ -10,7 +12,7 @@ gem 'turbolinks', '~> 5'
 gem 'webpacker', '~> 4.0'
 
 group :development, :test do
-  gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+  gem 'byebug', platforms: %i[mri mingw x64_mingw]
   gem 'rspec-rails'
   gem 'rubocop'
   gem 'rubocop-rails'
