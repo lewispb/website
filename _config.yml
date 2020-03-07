@@ -38,7 +38,6 @@ plugins:
 sass:
   load_paths:
     - css
-    - node_modules
 
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list
@@ -51,6 +50,7 @@ exclude:
   - README.md
   - postcss.config.js
   - purgecss.config.js
+  - node_modules
   - netlify.toml
   - bin
   - .gitignore
