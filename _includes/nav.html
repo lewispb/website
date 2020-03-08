@@ -1,8 +1,10 @@
 <nav class="flex flex-wrap items-center justify-between text-gray-900 bg-white rounded-lg shadow-lg p-2 mb-4 w-full">
   <div class="flex items-center flex-shrink-0 mr-6">
     <span class="px-2 mr-2">
-      <img src="{{ '/images/logo.png' | relative_url }}" alt="alt placeholder" class="w-8 h-8 -mt-1 inline mx-auto">
-      Lewis Buckley
+      <a href="/">
+        <img src="{{ '/images/logo.png' | relative_url }}" alt="alt placeholder" class="w-8 h-8 -mt-1 inline mx-auto">
+        Lewis Buckley
+      </a>
     </span>
   </div>
 
@@ -15,13 +17,18 @@
   <div id="nav-content" class="w-full flex-grow md:flex md:items-center md:w-auto hidden md:block pt-6 md:pt-0">
     <ul class="list-reset md:flex flex-1 items-center">
       <li class="mr-3">
-        <a class="inline-block py-2 px-4 no-underline" href="#">Active</a>
+        {% if page.category == "about" %}
+          <a class="py-2 px-4 inline-block" href="/about">About</a>
+        {% else %}
+          <a class="py-2 px-4 inline-block text-gray-600 hover:text-gray-900" href="/about">About</a>
+        {% endif %}
       </li>
       <li class="mr-3">
-        <a class="inline-block text-gray-600 no-underline hover:text-gray-200 hover:text-underline py-2 px-4" href="#">link</a>
-      </li>
-      <li class="mr-3">
-        <a class="inline-block text-gray-600 no-underline hover:text-gray-200 hover:text-underline py-2 px-4" href="#">link</a>
+        {% if page.title == "Blog" %}
+          <a class="py-2 px-4 inline-block" href="/blog">Blog</a>
+        {% else %}
+          <a class="py-2 px-4 inline-block text-gray-600 hover:text-gray-900" href="/blog">Blog</a>
+        {% endif %}
       </li>
     </ul>
   </div>

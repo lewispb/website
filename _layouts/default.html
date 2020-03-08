@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="{{ page.lang | default: site.lang | default: "en" }}">
+<html lang="{{ page.lang | default: site.lang | default: 'en' }}" style="background: #edf2f7;">
 
   {%- include head.html -%}
 
-  <body class="h-screen flex justify-center" style="background: #edf2f7;">
+  <body class="flex justify-center">
     <div class="w-full xl:w-1/2 p-4">
-      {%- include header.html -%}
+      {%- include nav.html -%}
 
       {{ content }}
 
