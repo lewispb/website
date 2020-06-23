@@ -28,6 +28,9 @@ twitter_username: lewispb
 github_username:  lewispb
 name: Lewis Buckley
 
+collections:
+  - experiences
+
 # Build settings
 plugins:
   - jekyll-feed

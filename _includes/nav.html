@@ -24,6 +24,13 @@
         {% endif %}
       </li>
       <li class="mr-3">
+        {% if page.title == "Contact" %}
+          <a class="py-2 px-4 inline-block" href="/contact">Contact</a>
+        {% else %}
+          <a class="py-2 px-4 inline-block text-gray-600 hover:text-gray-900" href="/contact">Contact</a>
+        {% endif %}
+      </li>
+      <li class="mr-3">
         {% if page.title == "Blog" %}
           <a class="py-2 px-4 inline-block" href="/blog">Blog</a>
         {% else %}
