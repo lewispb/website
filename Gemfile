@@ -7,4 +7,5 @@ group :jekyll_plugins do
   gem "jekyll-postcss"
   gem "jekyll-purgecss"
   gem "jekyll-gravatar"
+  gem "jekyll-target-blank"
 end

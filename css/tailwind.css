@@ -30,5 +30,13 @@
   @apply mb-4;
 }
 
+.markdown a {
+  @apply text-orange-500;
+}
+
+.markdown a:hover {
+  @apply underline;
+}
+
 @tailwind components;
 @tailwind utilities;
