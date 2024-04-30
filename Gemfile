@@ -9,3 +9,7 @@ group :jekyll_plugins do
   gem "jekyll-gravatar"
   gem "jekyll-target-blank"
 end
+
+# HEY World sync script
+gem "reverse_markdown"
+gem "feedjira"

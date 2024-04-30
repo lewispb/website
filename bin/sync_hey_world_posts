@@ -1,0 +1,149 @@
+#!/usr/bin/env ruby
+
+require "feedjira"
+require 'net/http'
+require 'cgi'
+require "fileutils"
+require "pathname"
+require "yaml"
+require "active_support/all"
+require "reverse_markdown"
+
+HEY_WORLD_FEED_URL = URI("https://world.hey.com/lewis/feed.atom")
+POSTS_DIR = Pathname.new(File.expand_path("../_posts", __dir__))
+
+module ReverseMarkdown
+  module Converters
+    # Extend ReverseMarkdown's <pre> converter to respect the "lang" attribute
+    # of a <code> child as well as a pseudo tag for double newlines (see below)
+    class TrixPre < Pre
+      def language(node)
+        super.presence || node.at_css("code")["lang"]
+      end
+    end
+
+    class DoubleBr < Base
+      def convert(*)
+        "\n\n"
+      end
+    end
+
+    class H1 < Base
+      def convert(node, state = {})
+        ["\n", "##", ' ', treat_children(node, state), "\n"].join
+      end
+    end
+  end
+end
+
+ReverseMarkdown::Converters.unregister :pre
+ReverseMarkdown::Converters.unregister :h1
+ReverseMarkdown::Converters.register :pre, ReverseMarkdown::Converters::TrixPre.new
+ReverseMarkdown::Converters.register :doublebr, ReverseMarkdown::Converters::DoubleBr.new
+ReverseMarkdown::Converters.register :h1, ReverseMarkdown::Converters::H1.new
+
+class Post
+  attr_reader :item
+
+  def initialize(item)
+    @item = item
+  end
+
+  def write_to_file!
+    File.write filename, <<~EOS
+      #{YAML.dump(front_matter)}---
+
+      #{tags.any? ? markdown_content.lines[0...-1].join : markdown_content}
+    EOS
+  end
+
+  private
+
+  def front_matter
+    {
+      comment_issue_term: item.entry_id,
+      date: item.published.localtime.to_s,
+      last_modified_at: item.updated.localtime.to_s,
+      layout: "post",
+      tags: tags,
+      title: item.title,
+      trix: true
+    }.transform_keys(&:to_s)
+  end
+
+  def content
+    @content ||= begin
+      # As trix doesn't seem to produce <p> tags and instead puts double <br>s everywhere,
+      # the resulting markdown would contain semantically wrong lines.
+      # The easiest solution to fix this without having to do a lot of own parsing and replacing
+      # is to introduce a pseudo-tag that's handled differently when converting the post to markdown.
+      item_content = item.content.gsub("<br><br>", "<doublebr />")
+
+      xml = Nokogiri::HTML::DocumentFragment.parse(item_content)
+
+      # Trix creates semantically wrong <pre> blocks which do not contain <code> elements.
+      # See https://html.spec.whatwg.org/multipage/grouping-content.html#the-pre-element
+      # Also, the HTML inside its <pre> blocks already contains formatting tags like <em>.
+      # Therefore, we remove every HTML tag inside here (everything relevant is escaped)
+      # and add an own <code> tag.
+      xml.css("pre").each do |pre|
+        code = Nokogiri::XML::Node.new("code", xml)
+
+        # Search for a "lang: something" line at the end of the pre.
+        # If there is one, use it for syntax highlighting
+        if (match = pre.content.lines.last.match(/lang: (\w+)/))
+          code["lang"] = match[1]
+          code.content = pre.content.lines[0...-1].join
+        else
+          code.content = pre.content
+        end
+
+        pre.content = nil
+        code.parent = pre
+      end
+
+      xml.to_html
+    end
+  end
+
+  def tags
+    @tags ||= begin
+      tag_line = markdown_content.lines.last
+
+      if tag_line.match?(/^((#\w+) ?)+$/)
+        tag_line.scan(/#(\w+)/).flatten
+      else
+        []
+      end
+    end
+  end
+
+  def markdown_content
+    @markdown_content ||= ReverseMarkdown
+                            .convert(content, github_flavored: true, unknown_tags: :bypass)
+                            .gsub(/\n\n\s+\n/, "\n\n") # Remove 3+ consecutive newlines, usually after code blocks
+                            .gsub("\\<", "<") # Remove added escaping for tags inside ``
+                            .gsub("\\>", ">")
+                            .strip
+  end
+
+  def filename
+    basename = [
+      item.published.strftime("%Y-%m-%d"),
+      "--hey--",
+      item.title.parameterize
+    ].join("-")
+    POSTS_DIR.join("#{basename}.md")
+  end
+end
+
+# Load the atom feed from HEY world
+feed = Feedjira.parse(Net::HTTP.get(HEY_WORLD_FEED_URL))
+
+# Ensure we start without any possibly existing HEY posts.
+# Since both creation and update times are set in the front matter,
+# the actual files can be re-created without having to worry about possible inconsistencies.
+FileUtils.rm_rf(POSTS_DIR.join("*--hey--*"))
+
+# Generate the actual markdown files
+feed.entries.map(&Post.method(:new)).each(&:write_to_file!)
