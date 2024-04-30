@@ -36,7 +36,7 @@ collections:
 plugins:
   - jekyll-feed
   - jekyll-gravatar
-  - jekyll-postcss
+  - jekyll-postcss-v2
   - jekyll-purgecss
   - jekyll-target-blank
 

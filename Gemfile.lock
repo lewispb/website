@@ -39,7 +39,7 @@ GEM
     jekyll-feed (0.17.0)
       jekyll (>= 3.7, < 5.0)
     jekyll-gravatar (0.1.0)
-    jekyll-postcss (0.5.0)
+    jekyll-postcss-v2 (1.0.2)
     jekyll-purgecss (0.3.0)
     jekyll-sass-converter (3.0.0)
       sass-embedded (~> 1.54)
@@ -92,9 +92,9 @@ PLATFORMS
 DEPENDENCIES
   feedjira
   jekyll (~> 4)
-  jekyll-feed (~> 0.12)
+  jekyll-feed
   jekyll-gravatar
-  jekyll-postcss
+  jekyll-postcss-v2
   jekyll-purgecss
   jekyll-target-blank
   reverse_markdown
